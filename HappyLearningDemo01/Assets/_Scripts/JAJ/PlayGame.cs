@@ -63,7 +63,6 @@ public class PlayGame : MonoBehaviour {
     public Text SingleScoreText;
     //单词显示的UI
     public Text WordText;
-    //
     // 名字输入框
     public InputField NameField;
     // 保存按钮
@@ -125,7 +124,7 @@ public class PlayGame : MonoBehaviour {
         SpawnStage();
 
         //调用生成单词的方法
-        ShowWords();
+        //ShowWords();
 
         //给相机与小人的相对位置赋值
         _cameraRelativePosition = Camera.main.transform.position - transform.position;
@@ -139,11 +138,12 @@ public class PlayGame : MonoBehaviour {
         _leanCloud = new LeanCloudRestAPI(LeanCloudAppId, LeanCloudAppKey);
     }
 
-    private void ShowWords()
+    private void ShowWords(Vector3 pos)
     {
 
         //定义一个单词的预制体用来存放原始台子集合中的其中一个
         GameObject wordprefab;
+        
 
         //判断单词集合的数量大于0则执行
         if (WordTemplates.Length > 0)
@@ -152,11 +152,11 @@ public class PlayGame : MonoBehaviour {
             wordprefab = WordTemplates[Random.Range(0, BoxTemplates.Length)];
             //调用动态生成的方法生成单词 并用一个变量存取便于后续操作
             var word = Instantiate(wordprefab,WordCanvasPos);
-            //调整生成的单词的位置 随机位置生成
-            word.transform.position = _currentStage.transform.position + _direction * Random.Range(1.1f, MaxDistance) + new Vector3(0, 0.3f, 0);
-
-            //将克隆的单词赋实时单词
+            //将克隆的单词赋给实时单词
             _currentWord = word;
+            //对单词的位置进行赋值
+            word.transform.position = pos;
+            
         }
         //若存放单词模型的集合内没有就把当前小人所在的单词赋值给预制体
         else
@@ -164,13 +164,11 @@ public class PlayGame : MonoBehaviour {
             wordprefab = WordCanvas;
             //调用动态生成的方法生成单词 并用一个变量存取便于后续操作
             var word = Instantiate(wordprefab);
-            //调整生成的单词的位置 随机位置生成
-            word.transform.position = _currentStage.transform.position + _direction * Random.Range(1.5f, MaxDistance) + new Vector3(0, 0.3f, 0);
-
-            //将克隆的单词赋实时单词
+            //将克隆的单词赋给实时单词
             _currentWord = word;
-           
-
+            //对单词的位置进行赋值
+            word.transform.position = pos;
+          
         }
        
 
@@ -180,9 +178,7 @@ public class PlayGame : MonoBehaviour {
         //随机调整单词的大小
         //word.transform.localScale = new Vector3(randomScale, 1, randomScale);
 
-        //重载函数 或 重载方法 随机调整台子的颜色
-        //word.GetComponent<Renderer>().material.color =
-          //  new Color(Random.Range(0f, 1), Random.Range(0f, 1), Random.Range(0f, 1));
+        
     }
 
     //处理点击上传分数按钮
@@ -287,9 +283,12 @@ public class PlayGame : MonoBehaviour {
         // 重载函数 或 重载方法 随机调整台子的颜色
         stage.GetComponent<Renderer>().material.color =
             new Color(Random.Range(0f, 1), Random.Range(0f, 1), Random.Range(0f, 1));
+
+        //调用生成单词的方法
+        ShowWords(stage.transform.position + Vector3.up * (stage.transform.localScale.y / 2 + 0.01f));
     }
 
-    // Update is called once per frame
+    
     void Update () {
 
 
@@ -322,11 +321,8 @@ public class PlayGame : MonoBehaviour {
                 //还原盒子的形状
                 _currentStage.transform.DOLocalMoveY(-0.25f, 0.2f);
                 _currentStage.transform.DOScaleY(0.5f, 0.2f);
-
                 //让之前的单词消失
                 DestroyWord();
-               
-
 
                 //将是否按下鼠标的状态设置为否
                 _enableInput = false;
@@ -346,6 +342,7 @@ public class PlayGame : MonoBehaviour {
                     //当前台子进行比例和位置变换
                     _currentStage.transform.localScale += new Vector3(0, -1, 0) * 0.15f * Time.deltaTime;
                     _currentStage.transform.localPosition += new Vector3(0, -1, 0) * 0.15f * Time.deltaTime;
+                    
                 }
             }
         }
@@ -358,7 +355,9 @@ public class PlayGame : MonoBehaviour {
 
     private void DestroyWord()
     {
-        _currentWord.transform.DOLocalMoveZ(40, 0.2f);
+        // _currentWord.transform.DOLocalMoveZ(40, 0.2f);
+        _currentWord.transform.DOLocalMoveZ(100, 5f);
+        
     }
 
     //更新飘分效果
@@ -410,7 +409,8 @@ public class PlayGame : MonoBehaviour {
                     AddScore(contacts);
                     RandomDirection();
                     SpawnStage();
-                    ShowWords();
+                    
+                    //ShowWords();
                     //_currentWord.transform.DOLocalMoveY(-0.3f, 0.2f);//还原单词的形状
                     MoveCamera();
 
