@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// Demo Data, LOL Skill Data Array.
+/// Demo Data, HappyLearning Data Array.
 /// </summary>
 public class LolSkillData{
 
